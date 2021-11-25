@@ -1,5 +1,5 @@
 # searchenginetask
--------------------
+
 ### 1. Building
 To build JAR package use following command:
 ```
