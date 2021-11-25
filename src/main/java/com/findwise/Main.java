@@ -5,7 +5,7 @@ import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -56,11 +56,12 @@ public class Main {
         }
     }
 
-    private static void loadTestDocuments(SearchEngine engine) throws IOException, URISyntaxException {
+    private static void loadTestDocuments(SearchEngine engine) throws IOException {
         for (var document : TEST_DOCUMENTS) {
-            Path path = Paths.get(Objects.requireNonNull(Main.class.getResource(document)).toURI());
-            String content = Files.readString(path, StandardCharsets.UTF_8);
-            engine.indexDocument(document, content);
+            try (InputStream inputStream = Main.class.getResourceAsStream(document)) {
+                String content = new String(Objects.requireNonNull(inputStream).readAllBytes(), StandardCharsets.UTF_8);
+                engine.indexDocument(document, content);
+            }
         }
     }
 
