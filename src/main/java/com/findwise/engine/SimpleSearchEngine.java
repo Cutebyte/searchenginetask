@@ -37,21 +37,31 @@ public class SimpleSearchEngine implements SearchEngine {
     @Override
     public List<IndexEntry> search(String term) {
         logger.info("Searching for {}...", term);
-        List<IndexEntry> results = new ArrayList<>();
 
         Set<Document> matchingDocuments = storage.findDocuments(term);
+        List<IndexEntry> results = handleMatchingDocuments(matchingDocuments, term);
+
+        logger.info("Matched {} entries!", results.size());
+        results.sort(Comparator.comparingDouble(IndexEntry::getScore).reversed());
+        return results;
+    }
+
+    private List<IndexEntry> handleMatchingDocuments(Set<Document> matchingDocuments, String term) {
+        ArrayList<IndexEntry> results = new ArrayList<>();
         double idf = new InverseDocumentFrequencyCalculator(storage.getDocumentCount(), matchingDocuments.size())
                 .calculate();
 
         for (var document : matchingDocuments) {
             logger.info("Matched document: {}", document.getId());
-            var sum = document.getTerms().values().stream().reduce(0, Integer::sum);
-            double tf = new TermFrequencyCalculator(sum, document.getTerms().get(term)) .calculate();
-            results.add(new SimpleIndexEntry(document.getId(), tf * idf));
+            results.add(createIndexEntry(document, term, idf));
         }
-        results.sort(Comparator.comparingDouble(IndexEntry::getScore).reversed());
-        logger.info("Matched {} entries!", results.size());
+
         return results;
     }
 
+    private IndexEntry createIndexEntry(Document document, String term, double idf) {
+        var sum = document.getTerms().values().stream().reduce(0, Integer::sum);
+        double tf = new TermFrequencyCalculator(sum, document.getTerms().get(term)).calculate();
+        return new SimpleIndexEntry(document.getId(), tf * idf);
+    }
 }
