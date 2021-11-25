@@ -5,8 +5,8 @@ import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.net.URISyntaxException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +18,7 @@ public class Main {
     static final Logger logger = LogManager.getLogger(Main.class);
     static final String[] TEST_DOCUMENTS = {"/document1.txt", "/document2.txt", "/document3.txt"};
 
-    public static void main(String[] args) throws ParseException, IOException, URISyntaxException {
+    public static void main(String[] args) throws ParseException, IOException {
         CommandLineParser parser = new DefaultParser();
         Options options = prepareOptions();
         CommandLine commandLine = parser.parse(options, args);
@@ -28,7 +28,7 @@ public class Main {
         handleOptions(commandLine);
     }
 
-    private static void handleOptions(CommandLine commandLine) throws IOException, URISyntaxException {
+    private static void handleOptions(CommandLine commandLine) throws IOException {
         SearchEngine engine = new SimpleSearchEngine();
         if (commandLine.hasOption('t')) {
             logger.info("Loading test documents...");
